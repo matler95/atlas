@@ -1,20 +1,21 @@
 import { createRouter, createRoute, createRootRoute, redirect, Outlet } from '@tanstack/react-router'
 import { useAuthStore } from '@/stores/authStore'
 
-// Placeholder route components (will be replaced with actual pages in later steps)
+// Actual page components
+import LoginPage from '@/routes/auth/login'
+import RegisterPage from '@/routes/auth/register'
+import OnboardingPage from '@/routes/onboarding/index'
+import WorkoutBuilderPage from '@/routes/onboarding/workout-builder'
+import DashboardPage from '@/routes/app/dashboard'
+import PlanPage from '@/routes/app/plan'
+import ProgressPage from '@/routes/app/progress'
+import LibraryPage from '@/routes/app/library'
+import ProfilePage from '@/routes/app/profile'
+import WorkoutPage from '@/routes/app/workout/$sessionId'
+
 const RootComponent = () => {
   return <Outlet />
 }
-
-const LoginPage = () => <div>Login Page</div>
-const RegisterPage = () => <div>Register Page</div>
-const OnboardingPage = () => <div>Onboarding Page</div>
-const DashboardPage = () => <div>Dashboard Page</div>
-const PlanPage = () => <div>Plan Page</div>
-const ProgressPage = () => <div>Progress Page</div>
-const LibraryPage = () => <div>Library Page</div>
-const ProfilePage = () => <div>Profile Page</div>
-const WorkoutPage = () => <div>Workout Page</div>
 
 const rootRoute = createRootRoute({
   component: RootComponent,
@@ -45,9 +46,14 @@ const onboardingRoute = createRoute({
   path: '/onboarding',
   component: OnboardingPage,
   beforeLoad: () => {
-    const { user } = useAuthStore.getState()
-    if (!user) throw redirect({ to: '/auth/login' })
+    // Allow access without auth (account created during onboarding)
   },
+})
+
+const workoutBuilderRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/onboarding/workout-builder',
+  component: WorkoutBuilderPage,
 })
 
 const dashboardRoute = createRoute({
@@ -124,6 +130,7 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   onboardingRoute,
+  workoutBuilderRoute,
   dashboardRoute,
   planRoute,
   progressRoute,
