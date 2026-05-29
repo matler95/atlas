@@ -19,8 +19,13 @@ export function ExercisePicker({ userEquipment, selectedIds, onSelect, onClose }
   const equipmentMap = EQUIPMENT_FILTER_MAP()
   const allowedEquipment = equipmentMap[userEquipment] ?? []
 
-  const filtered = (exercises ?? []).filter(ex => {
-    if (!allowedEquipment.includes(ex.equipment)) return false
+  const allExercises = exercises ?? []
+  // If no exercises match equipment filter, show all (exercises may not be seeded yet)
+  const equipmentFiltered = allExercises.filter(ex => allowedEquipment.includes(ex.equipment))
+  const showAll = equipmentFiltered.length === 0 && allExercises.length > 0
+  const baseList = showAll ? allExercises : equipmentFiltered
+
+  const filtered = baseList.filter(ex => {
     if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false
     if (muscleFilter && !ex.primary_muscles.includes(muscleFilter as never)) return false
     return true

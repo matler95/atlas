@@ -1,7 +1,9 @@
 /**
  * Seed script: transforms exercises.json into DB rows and upserts into exercises table.
- * Run: SUPABASE_URL=... SUPABASE_SERVICE_KEY=... npx tsx supabase/seed/seed_exercises.ts
+ * Run: npx tsx supabase/seed/seed_exercises.ts
+ * Run from the atlas/ directory.
  */
+import 'dotenv/config'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { createClient } from '@supabase/supabase-js'
@@ -57,8 +59,8 @@ interface JsonExercise {
 
 // ── Main ──
 async function seed() {
-  // Load exercises.json
-  const jsonPath = resolve(__dirname, '..', '..', 'exercises.json')
+  // Load exercises.json (run from atlas/ directory so ../exercises.json is the repo root)
+  const jsonPath = resolve(process.cwd(), '..', 'exercises.json')
   const raw = readFileSync(jsonPath, 'utf-8')
   const exercises: JsonExercise[] = JSON.parse(raw)
 

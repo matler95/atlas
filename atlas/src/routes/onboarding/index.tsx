@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
-import { useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 
 const GOALS = [
@@ -37,8 +36,7 @@ const TRAINING_STYLES = [
 const MUSCLES = ['abdominals','abductors','adductors','biceps','calves','chest','forearms','glutes','hamstrings','lats','lower_back','middle_back','neck','quadriceps','shoulders','traps','triceps']
 
 export default function OnboardingPage() {
-  const { data, setField, setStep, reset } = useOnboardingStore()
-  const navigate = useNavigate()
+  const { data, setField, setStep } = useOnboardingStore()
   const [error, setError] = useState('')
   const step = data.currentStep ?? 1
 
@@ -52,7 +50,7 @@ export default function OnboardingPage() {
       case 3: return !!data.experience
       case 4: return !!data.gender && !!data.age && !!data.height_cm && !!data.weight_kg
       case 5: return !!data.equipment
-      case 6: return !!data.gym_days_per_week && !!data.session_length_minutes
+      case 6: return true  // defaults are always valid (3 days, 60 min)
       case 7: return !!data.training_style
       case 8: return !data.include_abs || (data.abs_days?.length ?? 0) > 0
       case 9: return true
@@ -67,9 +65,8 @@ export default function OnboardingPage() {
       const { error: authError } = await supabase.auth.signUp({ email: data.email, password: data.password })
       if (authError) { setError(authError.message); return }
     }
-    // Navigate to workout builder (simplified — goes to dashboard)
-    reset()
-    navigate({ to: '/app/dashboard' })
+    // Navigate to workout builder to select exercises
+    window.location.href = '/onboarding/workout-builder'
   }
 
   const stepProgress = (step / 10) * 100

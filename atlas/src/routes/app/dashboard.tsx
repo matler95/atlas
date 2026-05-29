@@ -24,15 +24,7 @@ export default function DashboardPage() {
   const [weightInput, setWeightInput] = useState('')
 
   if (profileLoading) return <LoadingSpinner size="lg" className="min-h-screen" />
-  if (!profile) {
-    // User authenticated but no profile yet — redirect to onboarding
-    window.location.href = '/onboarding'
-    return <LoadingSpinner size="lg" className="min-h-screen" />
-  }
-  if (!profile.onboarding_completed) {
-    window.location.href = '/onboarding'
-    return <LoadingSpinner size="lg" className="min-h-screen" />
-  }
+  if (!profile) return <div className="p-4 text-white">Profile not found. Please complete onboarding.</div>
 
   const latestSnapshot = snapshots?.[snapshots.length - 1]
   const fitnessState = latestSnapshot
