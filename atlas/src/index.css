@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  background-color: #030712;
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Ensure all interactive elements meet 44px touch target */
+button, a, input, select, textarea, [role="button"] {
+  min-height: 44px;
+}
