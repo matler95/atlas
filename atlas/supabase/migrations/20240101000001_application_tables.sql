@@ -1,6 +1,6 @@
 -- Migration 002: Application tables
 
-CREATE TABLE user_profiles (
+CREATE TABLE IF NOT EXISTS user_profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   name text NOT NULL,
   goal goal_enum NOT NULL,
@@ -33,10 +33,10 @@ CREATE TABLE user_profiles (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_user_profiles_goal ON user_profiles(goal);
-CREATE INDEX idx_user_profiles_experience ON user_profiles(experience);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_goal ON user_profiles(goal);
+CREATE INDEX IF NOT EXISTS idx_user_profiles_experience ON user_profiles(experience);
 
-CREATE TABLE bodyweight_logs (
+CREATE TABLE IF NOT EXISTS bodyweight_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   date date NOT NULL,
@@ -44,9 +44,9 @@ CREATE TABLE bodyweight_logs (
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (user_id, date)
 );
-CREATE INDEX idx_bodyweight_logs_user_date ON bodyweight_logs(user_id, date DESC);
+CREATE INDEX IF NOT EXISTS idx_bodyweight_logs_user_date ON bodyweight_logs(user_id, date DESC);
 
-CREATE TABLE workout_plans (
+CREATE TABLE IF NOT EXISTS workout_plans (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   name text NOT NULL,
@@ -62,9 +62,9 @@ CREATE TABLE workout_plans (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_workout_plans_user_active ON workout_plans(user_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_workout_plans_user_active ON workout_plans(user_id, is_active);
 
-CREATE TABLE workout_days (
+CREATE TABLE IF NOT EXISTS workout_days (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   plan_id uuid NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
   day_of_week integer NOT NULL CHECK (day_of_week >= 0 AND day_of_week <= 6),
@@ -72,9 +72,9 @@ CREATE TABLE workout_days (
   order_index integer NOT NULL,
   UNIQUE (plan_id, day_of_week)
 );
-CREATE INDEX idx_workout_days_plan ON workout_days(plan_id);
+CREATE INDEX IF NOT EXISTS idx_workout_days_plan ON workout_days(plan_id);
 
-CREATE TABLE workout_day_exercises (
+CREATE TABLE IF NOT EXISTS workout_day_exercises (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   workout_day_id uuid NOT NULL REFERENCES workout_days(id) ON DELETE CASCADE,
   exercise_id uuid NOT NULL REFERENCES exercises(id),
@@ -86,10 +86,10 @@ CREATE TABLE workout_day_exercises (
   rest_seconds integer NOT NULL DEFAULT 120,
   UNIQUE (workout_day_id, order_index)
 );
-CREATE INDEX idx_wde_workout_day ON workout_day_exercises(workout_day_id);
-CREATE INDEX idx_wde_exercise ON workout_day_exercises(exercise_id);
+CREATE INDEX IF NOT EXISTS idx_wde_workout_day ON workout_day_exercises(workout_day_id);
+CREATE INDEX IF NOT EXISTS idx_wde_exercise ON workout_day_exercises(exercise_id);
 
-CREATE TABLE workout_sessions (
+CREATE TABLE IF NOT EXISTS workout_sessions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   workout_day_id uuid NOT NULL REFERENCES workout_days(id),
@@ -103,10 +103,10 @@ CREATE TABLE workout_sessions (
   feedback_difficulty integer NULL CHECK (feedback_difficulty >= 1 AND feedback_difficulty <= 5),
   feedback_notes text NULL
 );
-CREATE INDEX idx_sessions_user_started ON workout_sessions(user_id, started_at DESC);
-CREATE INDEX idx_sessions_status ON workout_sessions(status);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_started ON workout_sessions(user_id, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sessions_status ON workout_sessions(status);
 
-CREATE TABLE session_sets (
+CREATE TABLE IF NOT EXISTS session_sets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id uuid NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
   exercise_id uuid NOT NULL REFERENCES exercises(id),
@@ -117,10 +117,10 @@ CREATE TABLE session_sets (
   completed_at timestamptz NOT NULL DEFAULT now(),
   is_warmup boolean NOT NULL DEFAULT false
 );
-CREATE INDEX idx_session_sets_session ON session_sets(session_id);
-CREATE INDEX idx_session_sets_exercise ON session_sets(exercise_id, completed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_sets_session ON session_sets(session_id);
+CREATE INDEX IF NOT EXISTS idx_session_sets_exercise ON session_sets(exercise_id, completed_at DESC);
 
-CREATE TABLE fitness_snapshots (
+CREATE TABLE IF NOT EXISTS fitness_snapshots (
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   date date NOT NULL,
   fitness numeric(8,3) NOT NULL DEFAULT 0,
@@ -128,9 +128,9 @@ CREATE TABLE fitness_snapshots (
   form numeric(8,3) NOT NULL DEFAULT 0,
   PRIMARY KEY (user_id, date)
 );
-CREATE INDEX idx_fitness_snapshots_user_date ON fitness_snapshots(user_id, date DESC);
+CREATE INDEX IF NOT EXISTS idx_fitness_snapshots_user_date ON fitness_snapshots(user_id, date DESC);
 
-CREATE TABLE exercise_e1rm_history (
+CREATE TABLE IF NOT EXISTS exercise_e1rm_history (
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   exercise_id uuid NOT NULL REFERENCES exercises(id),
   session_id uuid NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
@@ -138,9 +138,9 @@ CREATE TABLE exercise_e1rm_history (
   e1rm_kg numeric(7,2) NOT NULL CHECK (e1rm_kg > 0),
   PRIMARY KEY (user_id, exercise_id, session_id)
 );
-CREATE INDEX idx_e1rm_user_exercise_date ON exercise_e1rm_history(user_id, exercise_id, date DESC);
+CREATE INDEX IF NOT EXISTS idx_e1rm_user_exercise_date ON exercise_e1rm_history(user_id, exercise_id, date DESC);
 
-CREATE TABLE user_volume_landmarks (
+CREATE TABLE IF NOT EXISTS user_volume_landmarks (
   user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
   muscle_group muscle_group_enum NOT NULL,
   mev numeric(5,2) NOT NULL,
@@ -151,7 +151,7 @@ CREATE TABLE user_volume_landmarks (
   PRIMARY KEY (user_id, muscle_group)
 );
 
-CREATE TABLE plan_quality_scores (
+CREATE TABLE IF NOT EXISTS plan_quality_scores (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   plan_id uuid NOT NULL REFERENCES workout_plans(id) ON DELETE CASCADE,
   overall_score numeric(5,2) NOT NULL CHECK (overall_score >= 0 AND overall_score <= 100),
@@ -162,7 +162,7 @@ CREATE TABLE plan_quality_scores (
   warnings text[] NOT NULL DEFAULT '{}',
   created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_quality_scores_plan ON plan_quality_scores(plan_id);
+CREATE INDEX IF NOT EXISTS idx_quality_scores_plan ON plan_quality_scores(plan_id);
 
 -- updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -170,10 +170,16 @@ RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = now(); RETURN NEW; END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_user_profiles_updated_at
-  BEFORE UPDATE ON user_profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$ BEGIN
+  CREATE TRIGGER update_user_profiles_updated_at
+    BEFORE UPDATE ON user_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TRIGGER update_workout_plans_updated_at
-  BEFORE UPDATE ON workout_plans
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$ BEGIN
+  CREATE TRIGGER update_workout_plans_updated_at
+    BEFORE UPDATE ON workout_plans
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;

@@ -4,10 +4,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -31,7 +30,10 @@ export default function RegisterPage() {
     if (error) {
       setError(error.message)
     } else {
-      navigate({ to: '/onboarding' })
+      // Use setTimeout to ensure navigation happens after auth state settles
+      setTimeout(() => {
+        window.location.href = '/onboarding'
+      }, 100)
     }
   }
 

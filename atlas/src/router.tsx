@@ -25,20 +25,12 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/login',
   component: LoginPage,
-  beforeLoad: () => {
-    const { user } = useAuthStore.getState()
-    if (user) throw redirect({ to: '/app/dashboard' })
-  },
 })
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/register',
   component: RegisterPage,
-  beforeLoad: () => {
-    const { user } = useAuthStore.getState()
-    if (user) throw redirect({ to: '/app/dashboard' })
-  },
 })
 
 const onboardingRoute = createRoute({
@@ -120,8 +112,7 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   beforeLoad: () => {
-    const { user } = useAuthStore.getState()
-    throw redirect({ to: user ? '/app/dashboard' : '/auth/login' })
+    throw redirect({ to: '/auth/login' })
   },
 })
 

@@ -1,4 +1,8 @@
 .env.local
 node_modules/@supabase/cli-windows-x64/bin/supabase-go.exe
 node_modules/*
+atlas/supabase/.temp/*
 supabase/.temp/*
+atlas/supabase/supabase/.temp/*
+atlas/supabase/.temp/cli-latest
+atlas/supabase/supabase/.temp/storage-version
