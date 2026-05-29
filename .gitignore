@@ -1,1 +1,4 @@
 .env.local
+node_modules/@supabase/cli-windows-x64/bin/supabase-go.exe
+node_modules/*
+supabase/.temp/*
